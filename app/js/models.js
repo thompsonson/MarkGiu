@@ -116,7 +116,12 @@ markgiu.DocumentPanel = function(options){
         if(ct == self.initialContent){
             self.dirty(false);
         } else {
-            self.dirty(true);
+            var path = self.filepath();
+            if(path){
+                self.saveFile();
+            } else {
+                self.dirty(true);
+            }
         }
     };
     
