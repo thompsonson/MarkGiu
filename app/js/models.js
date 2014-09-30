@@ -122,6 +122,7 @@ markgiu.DocumentPanel = function(options){
     
     
     self.saveFile=function(){
+        console.log("saveFile called");
         var path = self.filepath();
         if(!path){
             return;
@@ -130,7 +131,7 @@ markgiu.DocumentPanel = function(options){
         markgiu.fs.writeFileSync(path, self.content());
         self.initialContent = self.content();
         self.dirty(false);
-        bootbox.alert("file saved!");
+        //bootbox.alert("file saved!");
     };
     
     
