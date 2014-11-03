@@ -18,12 +18,15 @@ $(function(){
         console.log(ex.message);
     }
 
+    
+
     //set up keyboard shortcuts
     document.addEventListener('keyup', function (e) {
 		if (e.keyCode == 'O'.charCodeAt(0) && e.ctrlKey) {
             markGiuApp.chooseFileToOpen();
 		} else if (e.keyCode == 'S'.charCodeAt(0) && e.ctrlKey) {
-			console.log("Save function called but nothing done yet...");	
+            //markGiuApp.saveFile(); // not used as now auto saving...
+            $('#savefileas').click();
 		} else if (e.keyCode == 'N'.charCodeAt(0) && e.ctrlKey) {
             markGiuApp.addTabNew();
         }

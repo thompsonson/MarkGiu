@@ -43,8 +43,8 @@
                             A node-webkit based markdown editor
                             </p>
                             <p>
-                                <button class="btn btn-large btn-primary" data-bind="click: chooseFileToOpen">Open a file</button>
-                                <button class="btn btn-large btn-primary" data-bind="click: addTabNew">Create a new file</button>
+                                <button class="btn btn-large btn-primary" data-bind="click: chooseFileToOpen">Open a project</button>
+                                <button class="btn btn-large btn-primary" data-bind="click: addTabNew">Create a new project</button>
                             </p>
                         </div>
                     </div>
@@ -93,7 +93,6 @@
 
                             <div class="buttons pull-right">
                                 <span data-bind="if: dirty"><i style="" class="icon-exclamation-sign"></i><b> File has changed. </b></span>
-                                <button class="btn btn-mini btn-danger" data-bind="click:saveFile, attr: {disabled: !filepath() }"><i class="icon-save"></i>&nbsp;Save</button>
                                 <button class="btn btn-mini btn-danger" data-bind="click:$root.chooseFileToSaveAs"><i class="icon-save"></i>&nbsp;Save as ...</button>
                                 <button class="btn  btn-mini " data-bind="click: $root.closeTab"><i class="icon-ban-circle"></i>&nbsp;Close</button>
                             </div>
@@ -123,7 +122,9 @@
         
         <!-- le javascript -->
 
-        <script src="assets/knockout/knockout-2.2.1.js"></script>
+        <script src="assets/knockout/knockout-3.2.0.js"></script>
+        <script src="assets/knockout/knockout.mapping.js"></script>
+        <script src="assets/knockout/knockout.search.js"></script>
         <script src="assets/bootstrap/js/bootstrap.min.js"></script>
         <script src="assets/ace/cloud/ace.js"></script>
         <script src="assets/showdown/showdown.js"></script>
