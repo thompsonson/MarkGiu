@@ -9,7 +9,7 @@
     "position": "mouse",
     "min_width": 800,
     "min_height": 400,
-    "show" : false
+    "show" : true
   },
   "webkit": {
     "plugin": true

@@ -6,7 +6,6 @@ $(function(){
 
     //instantiate markgiu app and bind it to DOM
     var markGiuApp = new markgiu.AppGui();
-    markGiuApp.bindChoosers('#choosefile', '#savefileas');
     ko.applyBindings(markGiuApp, $("#wrap")[0]);
 
     win = gui.Window.get();
@@ -18,7 +17,7 @@ $(function(){
         console.log(ex.message);
     }
 
-    
+/*    
 
     //set up keyboard shortcuts
     document.addEventListener('keyup', function (e) {
@@ -31,7 +30,7 @@ $(function(){
             markGiuApp.addTabNew();
         }
 	});
-
+*/
     //show window
     gui.Window.get().show();
     

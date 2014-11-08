@@ -16,109 +16,49 @@
 
     </head>
     <body>
-        <div id="wrap">
-            <!--
-            <div class="navbar top-navbar">
-                <div class="navbar-inner">
-                    <a class="brand" href="#">Mark<i class="icon-arrow-down"></i>Giu</a>
-                    <ul class="nav pull-left">
-                        <li>
-                            <a href="#" data-bind="click:addTabNew"><i class="icon-plus-sign"></i>New File</a>
-                        </li>
-                        <li>
-                            <a href="#" data-bind="click:chooseFileToOpen"><i class="icon-file"></i>Open file</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>--><!-- top-navbar -->
-
-           
+        <div id="wrap">           
             <div id="" class="xcontainer">
-                <!-- ko if: !tabs().length -->
-                <div class="container">
-                    <div data-bind="" class="">
-                        <div class="hero-unit splash" style="">
-                            <h1>Welcome to Mark<i class="icon-arrow-down"></i>Giu</h1>
-                            <p>
-                            A node-webkit based markdown editor
-                            </p>
-                            <p>
-                                <button class="btn btn-large btn-primary" data-bind="click: chooseFileToOpen">Open a project</button>
-                                <button class="btn btn-large btn-primary" data-bind="click: addTabNew">Create a new project</button>
-                            </p>
-                        </div>
-                    </div>
-                
-                </div>            
-                <!-- /ko -->
-                
-                <!-- ko if: tabs().length -->  
-                
+
+                <!-- ko if: model.DataArray().length -->
                 <div class="workspace-left pull-left">
- 
-                    <div class="tab-files" data-bind="foreach: tabs">
-                        <div class="tab-button" 
-                            data-bind="css: { selected : id == $root.currentTab() }, click: $root.selectTab">
-                                <a data-bind=""><span data-bind="text: label"></span></a>
-                                &nbsp;
-                                <span data-bind="if: dirty"><i style="color:red" class="icon-exclamation-sign"></i></span>
-                                <span class="pull-right">
-                                    <a href="#" class="" data-bind="click: $root.closeTab"><i class="icon-ban-circle"></i></a>
-                                </span>
+                    <div class="tab-files" data-bind="foreach: model.DataArray">
+                        <div class="tab-button" data-bind="click: $root.selectTab">
+                            <a data-bind=""><span data-bind="text: Label"></span></a>
+                            &nbsp;
+                            
+                            <span class="pull-right">
+                                <a href="#" class="" data-bind="click: $root.closeTab"><i class="icon-ban-circle"></i></a>
+                            </span>
                         </div>
                     </div>
                 </div><!-- workspace-left -->
+                <!-- /ko -->
 
-                <div class="workspace-right pull-left">
-                    <div class="full" data-bind="foreach: tabs">
-                        <div class="full" data-bind="css: { zero : $root.currentTab() != id }">
+                <!-- ko if: model.CurrentDocument() -->
+                <div class="workspace-right pull-right">
+                    <p>Label: 
+                    <textarea data-bind='value: model.CurrentDocument().Label' rows='1' cols='60'> </textarea>
+                    <p>_id: <strong data-bind="text: model.CurrentDocument()._id"></strong></p>
+                    <textarea data-bind='value: model.CurrentDocument().Content' rows='5' cols='60'> </textarea>
+                    <hr>
+                    <strong data-bind="text: model.CurrentDocument()._id"></strong>
+                    <strong data-bind="text: model.CurrentDocument().Label"></strong>
+                    <strong data-bind="text: model.CurrentDocument().Content"></strong>
+                    <hr>
+                    <button data-bind='click: addNote'>Add a contact</button>
 
-                            <div class="editor-wrapper full" data-bind="css: { zero : $root.currentTab() != id }, attr: {id: id }">
-                            
-                                <div class="editor-markup pull-left">
-                                    <a href="" class="make-full" data-bind="click:toggleFullMarkup"><i class="icon-resize-full"></i><i class="icon-resize-small"></i></a>
-                                    <div class="edit full">
-                                        <div class="editor full" data-bind=""></div>
-                                    </div>
-                                </div>
-                                <div class="editor-preview pull-left">
-                                    <a href="" class="make-full" data-bind="click:toggleFullPreview"><i class="icon-resize-full"></i><i class="icon-resize-small"></i></a>
-                                    <div class="edit">
-                                    <div data-bind="html: convertedContent()" class="section_to_print"></div>
-                                    </div>
-                                </div>
-                                <div class="clearfix">
-                                </div>
-                            </div>
+                    <hr>
 
-                            <div class="buttons pull-right">
-                                <span data-bind="if: dirty"><i style="" class="icon-exclamation-sign"></i><b> File has changed. </b></span>
-                                <button class="btn btn-mini btn-danger" data-bind="click:$root.chooseFileToSaveAs"><i class="icon-save"></i>&nbsp;Save as ...</button>
-                                <button class="btn  btn-mini " data-bind="click: $root.closeTab"><i class="icon-ban-circle"></i>&nbsp;Close</button>
-                            </div>
-                        </div>
+                    <textarea data-bind='value: toJson()' rows='5' cols='280' disabled='disabled'> </textarea>
+                </div>
+                <!-- /ko -->
 
-                    </div>
-                    
-                    
-                    <!-- /ko -->
-                    
-                </div><!-- workspace-right -->
-                <div class="clearfix"></div>
-
-
-                
-                
-            <!-- /ko -->
-            <div>
-                <input class="hide" id="choosefile" type="file" />
-                <input class="hide" id="savefileas" type="file" nwsaveas />
-            </div>
-                
             </div><!-- xcontainer -->
-
-       
         </div><!-- wrap --> 
+
+
+
+
         
         <!-- le javascript -->
 
@@ -132,6 +72,8 @@
         <script src="assets/showdown/extensions/wikilink.js"></script>
         <script src="assets/showdown/extensions/table.js"></script>
         <script src="assets/bootbox/bootbox.min.js"></script>
+        <script src="assets/PouchDB/pouchdb-3.0.6.min.js"></script>
+        <script src="assets/PunchDB/PunchDB.js"></script>
         
         <script src="js/models.js"></script>
         <script src="js/main.js"></script>
