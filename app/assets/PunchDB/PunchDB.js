@@ -2,6 +2,7 @@ console.log("Loading PunchDB.js");
 // Class declarations
 // Basic Unit
 function Document(args) {
+    var args = args || {};
     this._id = args._id || new Date().toISOString();
     this._rev = args.rev;
 }
@@ -12,6 +13,7 @@ function Collection(options){
     this.db = new PouchDB(options.db || './db');
     // Data Array
     this.DataArray = ko.observableArray();
+    this.Data = ko.observable();
     // viewable format
     //this.toJson = ko.computed(this.toJson, this);
     this.toJson = ko.observable();
@@ -27,7 +29,7 @@ Collection.prototype.add = function(object) {
     that = this;
  
     this.object = object;
-    this.nonObservableObj = ko.toJS(object);
+    this.nonObservableObj = ko.mapping.toJS(object);
 
     this.db.put(this.nonObservableObj, function callback(err, doc){
         if (!err) {
@@ -42,15 +44,22 @@ Collection.prototype.add = function(object) {
     });
 }
 
+Collection.prototype.new = function() {
+    var doc = new Document;
+    this.add(doc);
+}
 Collection.prototype.put = function(object) {
     that = this;
  
     this.object = object;
-    this.nonObservableObj = ko.toJS(object);
+    this.nonObservableObj = ko.mapping.toJS(object);
+    console.log(this.object);
+    console.log(this.nonObservableObj);
 
     this.db.put(this.nonObservableObj, this.nonObservableObj._id, this.nonObservableObj._rev, function callback(err, doc){
         if (!err) {
             console.log('Successfully updated');
+            //that.getAll();
             that.toJson(JSON.stringify(ko.toJS(that.DataArray), null, 2));
         } else {
             console.log("error");
@@ -64,6 +73,8 @@ Collection.prototype.getAll = function() {
                
     this.db.allDocs({include_docs: true, descending: true}, function(err, doc) {
         if (!err) {
+            console.log(doc.rows);
+            that.Data = ko.mapping.fromJS(doc.rows)
             doc.rows.forEach(function(row) {
                 //console.log(row.doc);
                 var doc = new Document(row.doc._id);
@@ -77,8 +88,11 @@ Collection.prototype.getAll = function() {
                         doc[key] = row.doc[key];
                     }
                 }
+                //console.log(doc);
                 that.DataArray.push(doc);
             });
+            console.log(that.Data());
+            console.log(that.DataArray());
             that.toJson(JSON.stringify(ko.toJS(that.DataArray), null, 2));
         } else {
             console.log("error");
@@ -104,16 +118,8 @@ Collection.prototype.CurrentDocumentChange = function() {
         this.db.get(this.CurrentDocumentID(),function(err,doc){
             if (!err) {
                 console.log(doc);
-                var newdoc = new Document(doc)
-                for (var key in doc) {
-                    if (ko.isObservable(doc[key])){
-                        //console.log("processing observable: " + key);
-                        newdoc[key](doc[key]);
-                    } else {
-                        //console.log("processing key: " + key);
-                        newdoc[key] = doc[key];
-                    }
-                }
+                var newdoc = ko.mapping.fromJS(doc);
+                console.log(newdoc);
                 that.CurrentDocument(newdoc);
             } else {
                 console.log("error");
