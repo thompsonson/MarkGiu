@@ -1,132 +1,135 @@
 console.log("Loading PunchDB.js");
 // Class declarations
 // Basic Unit
-function Document(args) {
-    var args = args || {};
-    this._id = args._id || new Date().toISOString();
-    this._rev = args.rev;
+ 
+function Document(options) {
+    ko.mapping.fromJS(options.data, {}, this);
+ 
+
+    this.db = options.db;   
+    this.saveError = ko.observable(null);
+
+    if(!('deleted' in this)) {
+        this.deleted = ko.observable(false);
+    }
+    if(!('deleted_timestamp' in this)) {
+        this.deleted_timestamp = ko.observable();
+    }
+
+}
+
+Document.prototype.delete = function(){
+    that = this;
+
+    console.log(this);
+    console.log(ko.mapping.toJS(this));
+
+    this.deleted(true);
+    this.deleted_timestamp(new Date().toISOString())
+
+    this.update();
+
+    console.log(this);
+    console.log(ko.mapping.toJS(this));
+
+}
+ 
+Document.prototype.update = function(){
+    that = this;
+ 
+    this.nonObservableObj = ko.mapping.toJS(this);
+    console.log(this.nonObservableObj);
+   
+    this.db.put(this.nonObservableObj, this.nonObservableObj._id, this.nonObservableObj._rev, function callback(err, doc){
+        if (!err) {
+            console.log('Successfully updated');
+            //update the Doc revision
+            that._rev(doc.rev);
+        } else {
+            console.log("error");
+            console.log(err);
+            that.saveError(err);
+        }
+    });
 }
  
 // Basic Collection declaration
 function Collection(options){
+    var that = this;
+
     // Database connection
     this.db = new PouchDB(options.db || './db');
-    // Data Array
-    this.DataArray = ko.observableArray();
-    this.Data = ko.observable();
-    // viewable format
-    //this.toJson = ko.computed(this.toJson, this);
-    this.toJson = ko.observable();
  
-    //CurrentDocument details
-    this.CurrentDocumentID = ko.observable(null);
-    this.CurrentDocumentChange = ko.computed(this.CurrentDocumentChange, this);
+    this.mapping = {
+        'doc': {
+            create: function(options) {
+                // check for required properties
+                if(!('deleted' in options.data)){
+                    options.data.deleted = false;
+                }
+                if(!('deleted_timestamp' in options.data)){
+                    options.data.deleted_timestamp = "";
+                }
+                return new Document({db: that.db, data: options.data});
+            }
+        }
+    };
+ 
+    this.allRows = ko.observableArray();
+    this.toJson = ko.computed(this.toJson, this);
     this.CurrentDocument = ko.observable(null);
+
+    // filtering
+    this.showDeleted = ko.observable(false);
+
+    this.rows = ko.computed(function() {
+        if(that.showDeleted()) {
+            return that.allRows(); 
+        } else {
+            return ko.utils.arrayFilter(that.allRows(), function(row) {
+                return row.doc.deleted() != true;
+            });
+        }
+    });
+ 
 };
- 
+
 // Collection methods
-Collection.prototype.add = function(object) {
-    that = this;
- 
-    this.object = object;
-    this.nonObservableObj = ko.mapping.toJS(object);
-
-    this.db.put(this.nonObservableObj, function callback(err, doc){
-        if (!err) {
-            console.log('Successfully posted');
-            console.log(doc);
-            that.DataArray.push(that.object);
-            that.toJson(JSON.stringify(ko.toJS(that.DataArray), null, 2));
-        } else {
-            console.log("error");
-            console.log(err);
-        }
-    });
-}
-
 Collection.prototype.new = function() {
-    var doc = new Document;
-    this.add(doc);
+    var doc = {
+        data: {
+            _id: new Date().toISOString(),
+            _rev: "",
+            Label: "new doc",
+            Content: ""
+        },
+        db: this.db
+    }
+    console.log(doc);
+    var newDoc = new Document(doc);
+    this.allRows.push({doc: newDoc});
+    newDoc.update();
 }
-Collection.prototype.put = function(object) {
-    that = this;
  
-    this.object = object;
-    this.nonObservableObj = ko.mapping.toJS(object);
-    console.log(this.object);
-    console.log(this.nonObservableObj);
-
-    this.db.put(this.nonObservableObj, this.nonObservableObj._id, this.nonObservableObj._rev, function callback(err, doc){
-        if (!err) {
-            console.log('Successfully updated');
-            //that.getAll();
-            that.toJson(JSON.stringify(ko.toJS(that.DataArray), null, 2));
-        } else {
-            console.log("error");
-            console.log(err);
-        }
-    });
-}
-  
+// method to get all the documents
 Collection.prototype.getAll = function() {
     that = this;
-               
+              
     this.db.allDocs({include_docs: true, descending: true}, function(err, doc) {
         if (!err) {
-            console.log(doc.rows);
-            that.Data = ko.mapping.fromJS(doc.rows)
-            doc.rows.forEach(function(row) {
-                //console.log(row.doc);
-                var doc = new Document(row.doc._id);
-                // for each key in row.doc add to doc...
-                for (var key in row.doc) {
-                    if (ko.isObservable(doc[key])){
-                        //console.log("processing observable: " + key);
-                        doc[key](row.doc[key]);
-                    } else {
-                        //console.log("processing key: " + key);
-                        doc[key] = row.doc[key];
-                    }
-                }
-                //console.log(doc);
-                that.DataArray.push(doc);
-            });
-            console.log(that.Data());
-            console.log(that.DataArray());
-            that.toJson(JSON.stringify(ko.toJS(that.DataArray), null, 2));
+            // map the returned rows to the observable array
+            //console.log(doc.rows);
+            ko.mapping.fromJS(doc.rows, that.mapping, that.allRows);
         } else {
             console.log("error");
             console.log(err);
         }
     });
 }
-
-// Computed methods 
-Collection.prototype.toJson = function() {       
-    return JSON.stringify(ko.toJS(this.DataArray, null, 2));  
-}
-
-Collection.prototype.CurrentDocumentChange = function() {
-    that = this;
-    console.log(this.CurrentDocumentID());
-    if (this.CurrentDocumentID() == null) {
-        console.log("no current document id");
-        return null;
-    } else {
-        console.log("there is a current document id");
-        //get the document
-        this.db.get(this.CurrentDocumentID(),function(err,doc){
-            if (!err) {
-                console.log(doc);
-                var newdoc = ko.mapping.fromJS(doc);
-                console.log(newdoc);
-                that.CurrentDocument(newdoc);
-            } else {
-                console.log("error");
-                console.log(err);
-            }
-        })
-    }
-    return null;
+ 
+// Computed methods
+// method to help debug
+Collection.prototype.toJson = function() {      
+    return JSON.stringify(ko.mapping.toJS(this.allRows), null, 2); 
 }
  

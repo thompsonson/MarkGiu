@@ -6,17 +6,17 @@
         <meta name="description" content="MarkGiu">
         <meta name="author" content="Mauro Bianchi">
         <meta name="viewport" content="width=device-width">
-       
+      
         <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
         <link rel="stylesheet" href="assets/font-awesome-more/css/font-awesome.min.css">
         <link rel="stylesheet" href="assets/bootstrap/css/bootstrap-responsive.min.css">
         <link rel="stylesheet" href="css/main.css">
-
+ 
         <script src="assets/jquery/jquery.min.js"></script>
-
+ 
     </head>
     <body>
-        <div id="wrap">   
+        <div id="wrap">  
             <div class="navbar top-navbar">
                 <div class="navbar-inner">
                     <a class="brand" href="#">Mark<i class="icon-arrow-down"></i>Giu</a>
@@ -33,16 +33,15 @@
                     </ul>
                 </div>
             </div><!-- top-navbar -->
-
+ 
             <div id="" class="xcontainer">
-
-                <!-- ko if: model.DataArray().length -->
+                <!-- ko with:model -->
                 <div class="workspace-left pull-left">
-                    <div class="tab-files" data-bind="foreach: model.DataArray">
+                    <div class="tab-files" data-bind="foreach: rows">
                         <div class="tab-button" data-bind="click: $root.selectDoc">
-                            <a data-bind=""><span data-bind="text: Label"></span></a>
+                            <a data-bind=""><span data-bind="text: doc.Label"></span></a>
                             &nbsp;
-                            
+                           
                             <span class="pull-right">
                                 <a href="#" class="" data-bind="click: $root.deleteDoc"><i class="icon-ban-circle"></i></a>
                             </span>
@@ -50,18 +49,18 @@
                     </div>
                 </div><!-- workspace-left -->
                 <!-- /ko -->
-
+ 
+ 
                 <!-- ko if: model.CurrentDocument() -->
-
                 <div class="workspace-right pull-left">
                     <div class="full">
                         <div class="full">
-
+ 
                             <div class="editor-wrapper full">
                                 <div>
                                     <input type="text" data-bind="value: model.CurrentDocument().Label">
                                 </div>
-                            
+                           
                                 <div class="editor-markup pull-left">
                                     <div class="edit full">
                                         <div class="editor full" data-bind="ace: model.CurrentDocument().Content, aceOptions: { mode: 'markdown', theme: 'twilight' }"></div>
@@ -69,45 +68,44 @@
                                 </div>
                                 <div class="editor-preview pull-left">
                                     <div class="edit">
-                                        <div data-bind="html: convertedContent()" class="section_to_print"></div>
+                                        <pre data-bind="html: convertedContent()" class="section_to_print"></pre>
                                     </div>
                                 </div>
                                 <div class="clearfix">
                                 </div>
                             </div>
-
+ 
                         </div>
-
+ 
                     </div>
-                </div>    
-
+                </div>   
                 <!-- /ko -->
-
+ 
+ 
             </div><!-- xcontainer -->
-
+ 
             <div class="bottom-navbar">
                 <div class="navbar-inner">
                     <div class="container">
-
+ 
                         <!-- ko if: model.CurrentDocument() -->
                         <p class="navbar-text muted" style="text-align:center">
-                        <strong data-bind="text: model.CurrentDocument()._id"></strong>
-                        <strong data-bind="text: model.CurrentDocument().Label"></strong>
-                        <strong data-bind="text: model.CurrentDocument().Content"></strong>
+                        _id: <strong data-bind="text: model.CurrentDocument()._id"></strong>
+                        _rev: <strong data-bind="text: model.CurrentDocument()._rev"></strong>
                         </p>
                         <!-- /ko -->
                     </div>
                  </div>
             </div><!-- bottom-navbar -->
-
-        </div><!-- wrap --> 
-
-
-
-
-        
+ 
+        </div><!-- wrap -->
+ 
+ 
+ 
+ 
+       
         <!-- le javascript -->
-
+ 
         <script src="assets/knockout/knockout-3.2.0.js"></script>
         <script src="assets/knockout/knockout.mapping.js"></script>
         <script src="assets/knockout/knockout.search.js"></script>
@@ -121,9 +119,8 @@
         <script src="assets/bootbox/bootbox.min.js"></script>
         <script src="assets/PouchDB/pouchdb-3.0.6.min.js"></script>
         <script src="assets/PunchDB/PunchDB.js"></script>
-        
+       
         <script src="js/models.js"></script>
         <script src="js/main.js"></script>
- 
     </body>
 </html>
