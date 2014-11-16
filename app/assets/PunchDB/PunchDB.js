@@ -1,43 +1,36 @@
 console.log("Loading PunchDB.js");
-// Class declarations
-// Basic Unit
- 
+
+var os = require("os");
+
 function Document(options) {
     ko.mapping.fromJS(options.data, {}, this);
  
-
     this.db = options.db;   
     this.saveError = ko.observable(null);
-
-    if(!('deleted' in this)) {
-        this.deleted = ko.observable(false);
-    }
-    if(!('deleted_timestamp' in this)) {
-        this.deleted_timestamp = ko.observable();
-    }
 
 }
 
 Document.prototype.delete = function(){
     that = this;
 
-    console.log(this);
-    console.log(ko.mapping.toJS(this));
+    this.pdb_deleted(true);
+    this.pdb_deleted_timestamp(new Date().toISOString());
+    this.pdb_updated_hostname(os.hostname());
+    this.pdb_updated_timestamp( new Date().toISOString());
 
-    this.deleted(true);
-    this.deleted_timestamp(new Date().toISOString())
+    console.log(ko.mapping.toJS(this));
 
     this.update();
-
-    console.log(this);
-    console.log(ko.mapping.toJS(this));
-
 }
  
 Document.prototype.update = function(){
     that = this;
+
+    this.pdb_updated_hostname(os.hostname());
+    this.pdb_updated_timestamp( new Date().toISOString());
  
     this.nonObservableObj = ko.mapping.toJS(this);
+
     console.log(this.nonObservableObj);
    
     this.db.put(this.nonObservableObj, this.nonObservableObj._id, this.nonObservableObj._rev, function callback(err, doc){
@@ -57,18 +50,26 @@ Document.prototype.update = function(){
 function Collection(options){
     var that = this;
 
+    this.dbName = ko.observable(options.db || './db')
+    this.remoteCouch = ko.observable(options.remoteCouch || null);
+
     // Database connection
-    this.db = new PouchDB(options.db || './db');
+    this.db = new PouchDB(this.dbName());
  
     this.mapping = {
         'doc': {
             create: function(options) {
-                // check for required properties
-                if(!('deleted' in options.data)){
-                    options.data.deleted = false;
+                if(!('pdb_deleted' in options.data)) {
+                    options.data.pdb_deleted = false;
                 }
-                if(!('deleted_timestamp' in options.data)){
-                    options.data.deleted_timestamp = "";
+                if(!('pdb_deleted_timestamp' in options.data)) {
+                    options.data.pdb_deleted_timestamp = null;
+                }
+                if(!('pdb_updated_hostname' in options.data)) {
+                    options.data.pdb_updated_hostname = null;
+                }
+                if(!('pdb_updated_timestamp' in options.data)) {
+                    options.data.pdb_updated_timestamp = null;
                 }
                 return new Document({db: that.db, data: options.data});
             }
@@ -78,6 +79,7 @@ function Collection(options){
     this.allRows = ko.observableArray();
     this.toJson = ko.computed(this.toJson, this);
     this.CurrentDocument = ko.observable(null);
+    this.syncState = ko.observable("starting...");
 
     // filtering
     this.showDeleted = ko.observable(false);
@@ -87,12 +89,42 @@ function Collection(options){
             return that.allRows(); 
         } else {
             return ko.utils.arrayFilter(that.allRows(), function(row) {
-                return row.doc.deleted() != true;
+                return row.doc.pdb_deleted() != true;
             });
         }
     });
  
 };
+
+Collection.prototype.sync = function() {
+    that = this;
+    if (this.remoteCouch()){
+        this.syncState('syncing');
+        var opts = {live: true};
+        this.db.sync(this.remoteCouch(), opts)
+            .on('change', function (info) {
+                // handle change
+                //console.log("change");
+            }).on('complete', function (info) {
+                // handle complete
+                console.log("complete");
+                console.log(info);
+                that.syncState('complete');
+            }).on('uptodate', function (info) {
+                // handle up-to-date
+                console.log("uptodate");
+                console.log(info);
+                that.syncState('uptodate');
+            }).on('error', function (err) {
+                // handle error
+                console.log("err");
+                console.log(err);
+                that.syncState('error');
+            });
+    } else {
+        console.log("no remote Couch defined");
+    }
+}
 
 // Collection methods
 Collection.prototype.new = function() {

@@ -31,6 +31,11 @@
                             <a href="#"><i class="icon-file"></i>Open DB</a>
                         </li>
                     </ul>
+                    <ul class="nav pull-right">
+                        <li>
+                            <a href="#">Sync State: <strong data-bind="text: model.syncState"></strong></a>
+                        </li>
+                  </ul>
                 </div>
             </div><!-- top-navbar -->
  
@@ -88,12 +93,13 @@
                 <div class="navbar-inner">
                     <div class="container">
  
-                        <!-- ko if: model.CurrentDocument() -->
                         <p class="navbar-text muted" style="text-align:center">
+                        
+                        <!-- ko if: model.CurrentDocument() -->
                         _id: <strong data-bind="text: model.CurrentDocument()._id"></strong>
                         _rev: <strong data-bind="text: model.CurrentDocument()._rev"></strong>
-                        </p>
                         <!-- /ko -->
+                        </p>
                     </div>
                  </div>
             </div><!-- bottom-navbar -->

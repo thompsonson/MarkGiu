@@ -5,11 +5,14 @@ markgiu.converter = new Showdown.converter({ extensions: ['github', 'wikilink', 
 markgiu.AppGui = function(){
  
     var that = this;
- 
-    this.model = new Collection({});
+
+    this.model = new Collection({db: "new_db", remoteCouch:"https://localhost/notes"});
     //populate local copy of DB
-    this.model.getAll({db: "./new_db"});
+    this.model.getAll();
     this.toJson = ko.observable(this.model.toJson);
+
+    // start syncing
+    this.model.sync();
  
     this.newDoc = function(){
         that.model.new(); 
