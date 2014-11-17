@@ -6,17 +6,15 @@
         <meta name="description" content="MarkGiu">
         <meta name="author" content="Mauro Bianchi">
         <meta name="viewport" content="width=device-width">
-      
+     
         <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
         <link rel="stylesheet" href="assets/font-awesome-more/css/font-awesome.min.css">
         <link rel="stylesheet" href="assets/bootstrap/css/bootstrap-responsive.min.css">
         <link rel="stylesheet" href="css/main.css">
- 
         <script src="assets/jquery/jquery.min.js"></script>
- 
     </head>
     <body>
-        <div id="wrap">  
+        <div id="wrap"> 
             <div class="navbar top-navbar">
                 <div class="navbar-inner">
                     <a class="brand" href="#">Mark<i class="icon-arrow-down"></i>Giu</a>
@@ -38,7 +36,6 @@
                   </ul>
                 </div>
             </div><!-- top-navbar -->
- 
             <div id="" class="xcontainer">
                 <!-- ko with:model -->
                 <div class="workspace-left pull-left">
@@ -46,7 +43,7 @@
                         <div class="tab-button" data-bind="click: $root.selectDoc">
                             <a data-bind=""><span data-bind="text: doc.Label"></span></a>
                             &nbsp;
-                           
+                            <span data-bind="if: doc.dirtyFlag.isDirty"><i style="color:red" class="icon-exclamation-sign"></i></span>                          
                             <span class="pull-right">
                                 <a href="#" class="" data-bind="click: $root.deleteDoc"><i class="icon-ban-circle"></i></a>
                             </span>
@@ -55,17 +52,15 @@
                 </div><!-- workspace-left -->
                 <!-- /ko -->
  
- 
                 <!-- ko if: model.CurrentDocument() -->
                 <div class="workspace-right pull-left">
                     <div class="full">
                         <div class="full">
- 
                             <div class="editor-wrapper full">
                                 <div>
                                     <input type="text" data-bind="value: model.CurrentDocument().Label">
                                 </div>
-                           
+                          
                                 <div class="editor-markup pull-left">
                                     <div class="edit full">
                                         <div class="editor full" data-bind="ace: model.CurrentDocument().Content, aceOptions: { mode: 'markdown', theme: 'twilight' }"></div>
@@ -79,22 +74,17 @@
                                 <div class="clearfix">
                                 </div>
                             </div>
- 
                         </div>
- 
                     </div>
-                </div>   
+                </div>  
                 <!-- /ko -->
  
- 
             </div><!-- xcontainer -->
- 
             <div class="bottom-navbar">
                 <div class="navbar-inner">
                     <div class="container">
- 
                         <p class="navbar-text muted" style="text-align:center">
-                        
+                       
                         <!-- ko if: model.CurrentDocument() -->
                         _id: <strong data-bind="text: model.CurrentDocument()._id"></strong>
                         _rev: <strong data-bind="text: model.CurrentDocument()._rev"></strong>
@@ -103,19 +93,17 @@
                     </div>
                  </div>
             </div><!-- bottom-navbar -->
- 
         </div><!-- wrap -->
- 
  
  
  
        
         <!-- le javascript -->
- 
         <script src="assets/knockout/knockout-3.2.0.js"></script>
         <script src="assets/knockout/knockout.mapping.js"></script>
         <script src="assets/knockout/knockout.search.js"></script>
         <script src="assets/knockout/knockout-ace.js"></script>
+        <script src="assets/knockout/knockout-dirtyflag.js"></script>
         <script src="assets/bootstrap/js/bootstrap.min.js"></script>
         <script src="assets/ace/cloud/ace.js"></script>
         <script src="assets/showdown/showdown.js"></script>
@@ -124,8 +112,9 @@
         <script src="assets/showdown/extensions/table.js"></script>
         <script src="assets/bootbox/bootbox.min.js"></script>
         <script src="assets/PouchDB/pouchdb-3.0.6.min.js"></script>
-        <script src="assets/PunchDB/PunchDB.js"></script>
-       
+        <script src="assets/PunchDB/PunchDB.Document.js"></script>
+        <script src="assets/PunchDB/PunchDB.Collection.js"></script>
+      
         <script src="js/models.js"></script>
         <script src="js/main.js"></script>
     </body>
