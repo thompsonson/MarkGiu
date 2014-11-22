@@ -11,8 +11,8 @@ function Collection(options){
  
     // Database connection
     this.db = new PouchDB(this.dbName());
-    this.syncVariable;
     this.changeVariable = this.MonitorChanges();
+    this.syncVariable;
     this.mapping = {
         'doc': {
             create: function(options) {
@@ -54,19 +54,26 @@ Collection.prototype.new = function() {
     this.allRows.push({doc: newDoc});
     newDoc.update();
 }
- 
+
+Collection.prototype.addDocToArray = function(obj) {
+    var doc = {
+        data: obj.doc,
+        db: this.db,
+        Collection: this
+    }
+    console.log(doc);
+    var newDoc = new Document(doc);
+    this.allRows.push({doc: newDoc});
+} 
+
 Collection.prototype.getDocFromArrayByID = function(observableArray, id){
     that = this;
  
-    console.log(observableArray);
-    console.log(observableArray());
-    console.log(id);
- 
     var doc = ko.utils.arrayFirst(observableArray(), function(item) {
-            console.log(item.id());
-            return item.id() === id;
+            //console.log(item);
+            return item.doc._id() === id;
         }) || null;
- 
+
     return doc;
 }
 // method to get all the documents
@@ -94,6 +101,7 @@ Collection.prototype.onDocumentCreate = function(parentObj, changedObj) {
         console.log(ko.mapping.toJS(doc));
     } else if (parentObj instanceof Collection){
         collection = parentObj;
+        console.log(" - - - - - - creating a Collection...");
     }
  
  
@@ -103,9 +111,25 @@ Collection.prototype.onDocumentUpdate = function(obj) {
     console.log("Collection.prototype.onDocumentUpdate");
  
     var doc = this.getDocFromArrayByID(this.allRows, obj.id);
- 
-    console.log("need to verify revision on doc: " + doc.id());
-   
+
+    if (doc == null){ // no local copy
+        // add the doc to the array
+        console.log(" - - add the doc to the array");
+        this.addDocToArray(obj);
+    } else if (!(doc.doc.dirtyFlag.isDirty()) && (obj.doc._rev > doc.doc._rev())) { // local is clean and remote is newer
+        // refresh the array from the DB...
+        console.log(" - - refresh the array from the DB...");
+    } else if (doc.doc.dirtyFlag.isDirty() && (obj.doc._rev > doc.doc._rev())) { // local is dirty and remote is newer
+        // conflict resolution needed...
+        console.log(" - - conflict resolution needed...")
+    } else if (!(doc.doc.dirtyFlag.isDirty()) && (obj.doc._rev < doc.doc._rev())) { // local is clean and remote is older
+        // need to save the local version and\or sync with the remote DB
+        console.log(" - - need to save the local version and\or sync with the remote DB");
+    } else {    // catch all
+        // do nothing
+        console.log(" - - do nothing");
+    }
+
 }
  
 Collection.prototype.onDocumentDelete = function() {
@@ -120,37 +144,37 @@ Collection.prototype.MonitorChanges = function() {
     that = this;
  
     var changes = this.db.changes({
-        live: true
+        live: true,
+        include_docs: true
     });
- 
-    /*
-    changes.on('create', function(obj){ that.onDocumentCreate(obj) } );
-    changes.on('update', function(obj){ that.onDocumentUpdate(obj) } );
-    changes.on('delete', function(obj){ that.onDocumentDelete(obj) } );
-    changes.on('error' , function(obj){ that.onDocumentError(obj)  } );
-    */
- 
-    changes.on('create', function(obj){ console.log("Collection.prototype.MonitorChanges - Create"); that.onDocumentCreate(that,obj) } );
+
+    changes.on('create', function(obj){ 
+        console.log("Collection.prototype.MonitorChanges - Create"); 
+        console.log(obj);
+    } );
     changes.on('update', function(obj){
         console.log("Collection.prototype.MonitorChanges - Update");
+        //console.log(obj);
         if (that instanceof Document){
             that.Collection.onDocumentUpdate(obj);
-        } /*else if (that instanceof Collection){
+        } else if (that instanceof Collection){
             that.onDocumentUpdate(obj);
-        } */
+        } 
     } );
     changes.on('delete', function(obj){ console.log("Collection.prototype.MonitorChanges - Delete"); console.log(obj) } );
     changes.on('error' , function(obj){ console.log("Collection.prototype.MonitorChanges - Error"); console.log(obj)  } );
  
     return changes;
- 
 }
  
 Collection.prototype.syncDB = function() {
     that = this;
     if (this.remoteCouch()){
         this.syncState('syncing');
-        var opts = {live: true};
+        var opts = {
+            live: true,
+            include_docs: true
+        };
         this.syncVariable = this.db.sync(this.remoteCouch(), opts)
             .on('change', function (info) {
                 // handle change

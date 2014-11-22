@@ -13,8 +13,20 @@ markgiu.AppGui = function(){
     this.toJson = ko.observable(this.model.toJson);
 
     // start syncing
-    //this.model.sync();
+    this.model.syncDB();
  
+    this.showDevTools = function(){
+        win.showDevTools() ;
+    } 
+ 
+    this.reloadPageSoft = function(){
+        win.reload();
+    } 
+ 
+    this.reloadPageHard = function(){
+        win.reloadIgnoringCache();
+    } 
+
     this.newDoc = function(){
         that.model.new(); 
     }
