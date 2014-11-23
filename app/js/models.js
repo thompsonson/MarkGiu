@@ -22,6 +22,12 @@ markgiu.AppGui = function(){
     this.reloadPageSoft = function(){
         win.reload();
     } 
+
+    this.handleSyncStatusClick = function(){
+        if (this.model.syncState() == 'Error - Sync Cancelled'){
+            this.model.syncDB();
+        }
+    }
  
     this.reloadPageHard = function(){
         win.reloadIgnoringCache();

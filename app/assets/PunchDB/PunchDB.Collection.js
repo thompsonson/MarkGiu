@@ -103,8 +103,6 @@ Collection.prototype.onDocumentCreate = function(parentObj, changedObj) {
         collection = parentObj;
         console.log(" - - - - - - creating a Collection...");
     }
- 
- 
 }
  
 Collection.prototype.onDocumentUpdate = function(obj) {
@@ -117,8 +115,10 @@ Collection.prototype.onDocumentUpdate = function(obj) {
         console.log(" - - add the doc to the array");
         this.addDocToArray(obj);
     } else if (!(doc.doc.dirtyFlag.isDirty()) && (obj.doc._rev > doc.doc._rev())) { // local is clean and remote is newer
-        // refresh the array from the DB...
-        console.log(" - - refresh the array from the DB...");
+        // replace the document from the DB...
+        console.log(" - - replace the document from the DB...");
+        this.allRows.remove(doc);
+        this.addDocToArray(obj);
     } else if (doc.doc.dirtyFlag.isDirty() && (obj.doc._rev > doc.doc._rev())) { // local is dirty and remote is newer
         // conflict resolution needed...
         console.log(" - - conflict resolution needed...")
@@ -194,7 +194,8 @@ Collection.prototype.syncDB = function() {
                 // handle error
                 console.log("Collection.prototype.syncDB - Error");
                 console.log(err);
-                that.syncState('Error');
+                that.syncState('Error - Sync Cancelled');
+                that.syncVariable.cancell();
             });
     } else {
         console.log("no remote Couch defined");

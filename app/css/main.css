@@ -51,14 +51,14 @@ body{
 
 .editor-markup{
     /*background:black;*/
-    width:60%;
+    width:100%;
     position:relative;
     height:100%;
 }
 
 .editor-preview{
     color:black;
-    width:40%;
+    width:0%;
     height:100%;
     overflow:auto;
 }
