@@ -62,7 +62,7 @@ markgiu.AppGui = function(){
     }, this);
  
     this.deleteDoc = function(){
-        console.log(this.doc);
+        _log.debug("deleting: ", this.doc);
         this.doc.delete();
     }
  

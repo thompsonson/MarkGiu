@@ -1,4 +1,4 @@
-console.log("Loading PunchDB Document");
+_log.info("Loading PunchDB Document");
  
 var PunchDB = PunchDB || {};
  
@@ -36,7 +36,7 @@ Document.prototype.delete = function(){
     this.pdb_updated_hostname(PunchDB.os.hostname());
     this.pdb_updated_timestamp( new Date().toISOString());
  
-    console.log(ko.mapping.toJS(this));
+    _log.debug(ko.mapping.toJS(this));
  
     this.update();
 }
@@ -47,18 +47,17 @@ Document.prototype.update = function(){
     this.pdb_updated_timestamp( new Date().toISOString());
     this.nonObservableObj = ko.mapping.toJS(this);
  
-    console.log(this.nonObservableObj);
+    _log.debug(this.nonObservableObj);
   
     this.db.put(this.nonObservableObj, this.nonObservableObj._id, this.nonObservableObj._rev, function callback(err, doc){
         if (!err) {
-            console.log('Successfully updated');
+            _log.info('Successfully updated');
             //update the Doc revision
             that._rev(doc.rev);
             // mark as clean
             that.dirtyFlag.reset();
         } else {
-            console.log("error");
-            console.log(err);
+            _log.error(err);
             that.saveError(err);
         }
     });

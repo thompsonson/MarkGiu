@@ -1,6 +1,7 @@
 /* Main javascript  */
 
 $(function(){
+
     // Load native UI library
     var gui = require('nw.gui');
 
@@ -14,7 +15,7 @@ $(function(){
         nativeMenuBar.createMacBuiltin("My App");
         win.menu = nativeMenuBar;
     } catch (ex) {
-        console.log(ex.message);
+        _log.error(ex.message);
     }
 
 /*    
