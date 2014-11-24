@@ -28,7 +28,7 @@ function Collection(options){
     // Process Variables
     this.syncState = ko.observable("starting...");
  
-    // extras (maybe not part of PunchDN but rather the applicaiton [TODO])
+    // extras (maybe not part of PunchDB but rather the applicaiton [TODO])
     this.showDeleted = ko.observable(false);
  
     // Computed Observables
@@ -91,19 +91,6 @@ Collection.prototype.getAll = function() {
     });
 }
  
-Collection.prototype.onDocumentCreate = function(parentObj, changedObj) {
-    console.log("Collection.prototype.onDocumentCreate");
-    var collection;
-    if (parentObj instanceof Document){
-        collection = parentObj.Collection;
-        var doc = collection.getDocFromArrayByID(collection.allRows, changedObj.id);
-        _log.debug(ko.mapping.toJS(doc));
-    } else if (parentObj instanceof Collection){
-        collection = parentObj;
-        _log.info(" - - - - - - creating a Collection...");
-    }
-}
- 
 Collection.prototype.onDocumentUpdate = function(obj) {
     _log.info("Collection.prototype.onDocumentUpdate");
  
@@ -111,11 +98,11 @@ Collection.prototype.onDocumentUpdate = function(obj) {
 
     if (doc == null){ // no local copy
         // add the doc to the array
-        _log.info(" - - add the doc to the array");
+        _log.info("Adding the doc to the array");
         this.addDocToArray(obj);
     } else if (!(doc.doc.dirtyFlag.isDirty()) && (obj.doc._rev > doc.doc._rev())) { // local is clean and remote is newer
         // replace the document from the DB...
-        _log.info(" - - replace the document from the DB...");
+        _log.info("Replacing the array document with the one from the DB");
         this.allRows.remove(doc);
         this.addDocToArray(obj);
     } else if (doc.doc.dirtyFlag.isDirty() && (obj.doc._rev > doc.doc._rev())) { // local is dirty and remote is newer
@@ -126,18 +113,14 @@ Collection.prototype.onDocumentUpdate = function(obj) {
         _log.info(" - - need to save the local version and\or sync with the remote DB");
     } else {    // catch all
         // do nothing
-        _log.info(" - - do nothing");
+        _log.info("Document is up to date");
     }
 
 }
  
-Collection.prototype.onDocumentDelete = function() {
-    _log.info("Collection.prototype.onDocumentDelete");
-}
- 
-Collection.prototype.onDocumentError = function() {
-    _log.info("Collection.prototype.onDocumentError");   
-}
+Collection.prototype.onDocumentCreate = function() {_log.info("Collection.prototype.onDocumentCreate");}
+Collection.prototype.onDocumentDelete = function() {_log.info("Collection.prototype.onDocumentDelete");} 
+Collection.prototype.onDocumentError = function() {_log.info("Collection.prototype.onDocumentError"); }
  
 Collection.prototype.MonitorChanges = function() {
     that = this;
@@ -147,10 +130,6 @@ Collection.prototype.MonitorChanges = function() {
         include_docs: true
     });
 
-    changes.on('create', function(obj){ 
-        _log.info("Collection.prototype.MonitorChanges - Create"); 
-        _log.debug(obj);
-    } );
     changes.on('update', function(obj){
         _log.info("Collection.prototype.MonitorChanges - Update");
         //console.log(obj);
@@ -160,6 +139,7 @@ Collection.prototype.MonitorChanges = function() {
             that.onDocumentUpdate(obj);
         } 
     } );
+    changes.on('create', function(obj){ _log.info("Collection.prototype.MonitorChanges - Create"); _log.debug(obj); } );
     changes.on('delete', function(obj){ _log.info("Collection.prototype.MonitorChanges - Delete"); _log.debug(obj) } );
     changes.on('error' , function(obj){ _log.info("Collection.prototype.MonitorChanges - Error"); _log.debug(obj)  } );
  
@@ -174,25 +154,29 @@ Collection.prototype.syncDB = function() {
             live: true,
             include_docs: true
         };
-        this.syncVariable = this.db.sync(this.remoteCouch(), opts)
-            .on('change', function (info) {
+        this.syncVariable = this.db.sync(this.remoteCouch(), opts);
+
+        this.syncVariable.on('change', function (info) {
                 // handle change
-                //console.log("Collection.prototype.syncDB - Change");
-                //console.log(info);
-            }).on('complete', function (info) {
+                _log.info("Collection.prototype.syncDB - Change");
+                _log.debug(info);
+            });
+        this.syncVariable.on('complete', function (info) {
                 // handle complete
                 _log.info("Collection.prototype.syncDB - Complete");
                 _log.debug(info);
                 that.syncState('Complete');
-            }).on('uptodate', function (info) {
+            });
+        this.syncVariable.on('uptodate', function (info) {
                 // handle up-to-date
                 _log.info("Collection.prototype.syncDB - Up to date");
                 _log.debug(info);
                 that.syncState('Up To Date');
-            }).on('error', function (err) {
+            });
+        this.syncVariable.on('error', function (err) {
                 // handle error
-                _log.info("Collection.prototype.syncDB - Error");
-                _log.debug(err);
+                _log.error("Collection.prototype.syncDB - Error");
+                _log.error(err);
                 that.syncState('Error - Sync Cancelled');
                 that.syncVariable.cancell();
             });
