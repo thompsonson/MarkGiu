@@ -1,8 +1,8 @@
 _log.info("Loading PunchDB Document");
  
 var PunchDB = PunchDB || {};
- 
 PunchDB.os = require("os");
+
 function Document(options) {
  
     if(!('pdb_deleted' in options.data)) {

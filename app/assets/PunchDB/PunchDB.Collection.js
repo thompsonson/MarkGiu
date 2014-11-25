@@ -1,7 +1,20 @@
 _log.info("Loading PunchDB Collection");
  
 var PunchDB = PunchDB || {};
- 
+PunchDB.crypto = require('crypto'); 
+
+PunchDB.encrypt = function(text, password) {
+  var cipher = crypto.createCipher('aes-256-cbc', password);
+  var crypted = cipher.update(text, 'utf8', 'base64');
+  return crypted + cipher.final('base64');
+}
+
+PunchDB.decrypt = function(text, password) {
+  var decipher = crypto.createDecipher('aes-256-cbc', password);
+  var dec = decipher.update(text, 'base64', 'utf8');
+  return dec + decipher.final('utf8');
+}
+
 // Basic Collection declaration
 function Collection(options){
     var that = this;
@@ -20,6 +33,45 @@ function Collection(options){
             }
         }
     };
+
+    // any encrpytion?
+    if (options.encrypt){
+        this.password = options.password;
+        this.db.filter({
+            incoming: function (doc) {
+                _log.info("incoming doc (decrypted): ", doc)
+                Object.keys(doc).forEach(function (field) {
+                    switch(field) {
+                        case '_id':
+                            break;
+                        case '_rev':
+                            break;
+                        default:
+                            _log.debug("field to encrypt: ", field);
+                            _log.debug("encrypted data: ", PunchDB.encrypt(doc[field], that.password));
+                            //doc[field] = PunchDB.encrypt(doc[field], that.password);
+                    } 
+                });
+
+                _log.info("incoming doc (encrypted): ", doc)
+                return {};
+            },
+            outgoing: function (doc) {
+                _log.info("outgoing doc (encrypted): ", doc)
+
+                Object.keys(doc).forEach(function (field) {
+                    if ((field != '_id') || (field != '_rev')) {
+                        //doc[field] = PunchDB.decrypt(doc[field], options.password);
+                        _log.debug("field to decrypt: ", field);
+                        _log.debug("password to decrypt with: ", that.password);
+                    }
+                });
+
+                _log.info("outgoing doc (decrypted): ", doc)
+                return {};
+            }
+        });
+    }
    
     // Data
     this.allRows = ko.observableArray();

@@ -7,13 +7,13 @@ markgiu.AppGui = function(){
     var that = this;
 
     //this.model = new Collection({db: "new_db", remoteCouch:"http://shedpi:5984/notes"});
-    this.model = new Collection({db: "new_db", remoteCouch:"https://thompson.couchappy.com/notes"});
+    this.model = new Collection({db: "notes_private", remoteCouch:"https://thompson.couchappy.com/notes_private", encrypt: true, password: "notes_private"});
     //populate local copy of DB
     this.model.getAll();
     this.toJson = ko.observable(this.model.toJson);
 
     // start syncing
-    this.model.syncDB();
+    //this.model.syncDB();
  
     this.showDevTools = function(){
         win.showDevTools() ;
