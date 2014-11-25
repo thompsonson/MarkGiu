@@ -3,18 +3,6 @@ _log.info("Loading PunchDB Collection");
 var PunchDB = PunchDB || {};
 PunchDB.crypto = require('crypto'); 
 
-PunchDB.encrypt = function(text, password) {
-  var cipher = crypto.createCipher('aes-256-cbc', password);
-  var crypted = cipher.update(text, 'utf8', 'base64');
-  return crypted + cipher.final('base64');
-}
-
-PunchDB.decrypt = function(text, password) {
-  var decipher = crypto.createDecipher('aes-256-cbc', password);
-  var dec = decipher.update(text, 'base64', 'utf8');
-  return dec + decipher.final('utf8');
-}
-
 // Basic Collection declaration
 function Collection(options){
     var that = this;
@@ -37,6 +25,19 @@ function Collection(options){
     // any encrpytion?
     if (options.encrypt){
         this.password = options.password;
+
+        function encrypt(text, password) {
+            var cipher = PunchDB.crypto.createCipher('aes-256-cbc', password);
+            var crypted = cipher.update(text, 'utf8', 'base64');
+            return crypted + cipher.final('base64');
+        }
+
+        function decrypt(text, password) {
+            var decipher = PunchDB.crypto.createDecipher('aes-256-cbc', password);
+            var dec = decipher.update(text, 'base64', 'utf8');
+            return dec + decipher.final('utf8');
+        }
+
         this.db.filter({
             incoming: function (doc) {
                 _log.info("incoming doc (decrypted): ", doc)
@@ -48,7 +49,9 @@ function Collection(options){
                             break;
                         default:
                             _log.debug("field to encrypt: ", field);
-                            _log.debug("encrypted data: ", PunchDB.encrypt(doc[field], that.password));
+                            _log.debug("data to encrypt: ", doc[field]);
+                            // TODO : check for null values and check each is a string or similar
+                            _log.debug("encrypted data: ", encrypt(doc[field].toString(), that.password));
                             //doc[field] = PunchDB.encrypt(doc[field], that.password);
                     } 
                 });
