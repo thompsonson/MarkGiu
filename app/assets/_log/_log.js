@@ -1,3 +1,5 @@
+_log_fs = require("fs");
+
 _log = (function (methods, undefined) {
 
 	var Log = Error; // does this do anything?  proper inheritance...?
@@ -28,7 +30,33 @@ _log = (function (methods, undefined) {
 		};
 
         History.push([suffix,args,{"stack":this.stack}]);
-        
+
+        try{
+	        var toLog = JSON.stringify([suffix,args]) + "\n";
+            _log_fs.appendFile("log.json", toLog, function(err) {
+                if(err) {
+                    console.log(err);
+                } else {
+                    //console.log("The file was saved!");
+                }
+            });
+        } catch (ex) {
+            console.error(ex);
+            try{
+                var toLog = JSON.stringify([suffix,{"error_saving_to_log": ex}]) + "\n";
+                _log_fs.appendFile("log.json", toLog, function(err) {
+                    if(err) {
+                        console.log(err);
+                    } else {
+                        //console.log("The file was saved!");
+                    }
+                });
+            } catch (ex){
+                console.error(ex);
+            }
+        }        
+
+
 		args = args.concat([suffix]);
 		// via @paulirish console wrapper
 		if (console && console[method]) {

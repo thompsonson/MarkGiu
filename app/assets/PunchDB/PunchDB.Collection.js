@@ -8,6 +8,7 @@ function Collection(options){
  
     this.dbName = ko.observable(options.db || './db')
     this.remoteCouch = ko.observable(options.remoteCouch || null);
+    this.password = options.password || "";
  
     // Database connection
     this.db = new PouchDB(this.dbName());
@@ -43,7 +44,7 @@ Collection.prototype.new = function() {
         data: {
             _id: new Date().toISOString(),
             _rev: "",
-            Label: "new doc",
+            Label: new Date().format("Ymd His"),
             Content: ""
         },
         db: this.db,
@@ -94,7 +95,7 @@ Collection.prototype.getAll = function() {
 Collection.prototype.onDocumentUpdate = function(obj) {
     _log.info("Collection.prototype.onDocumentUpdate");
  
-    var doc = this.getDocFromArrayByID(this.allRows, obj.id);
+    var doc = this.getDocFromArrayByID(this.allRows, obj.doc._id);
 
     if (doc == null){ // no local copy
         // add the doc to the array
@@ -115,7 +116,6 @@ Collection.prototype.onDocumentUpdate = function(obj) {
         // do nothing
         _log.info("Document is up to date");
     }
-
 }
  
 Collection.prototype.onDocumentCreate = function() {_log.info("Collection.prototype.onDocumentCreate");}
@@ -139,7 +139,16 @@ Collection.prototype.MonitorChanges = function() {
             that.onDocumentUpdate(obj);
         } 
     } );
-    changes.on('create', function(obj){ _log.info("Collection.prototype.MonitorChanges - Create"); _log.debug(obj); } );
+    changes.on('create', function(obj){ 
+        _log.info("Collection.prototype.MonitorChanges - Create"); 
+        _log.debug(obj); 
+
+        if (that instanceof Document){
+            that.Collection.onDocumentUpdate(obj);
+        } else if (that instanceof Collection){
+            that.onDocumentUpdate(obj);
+        } 
+    } );
     changes.on('delete', function(obj){ _log.info("Collection.prototype.MonitorChanges - Delete"); _log.debug(obj) } );
     changes.on('error' , function(obj){ _log.info("Collection.prototype.MonitorChanges - Error"); _log.debug(obj)  } );
  

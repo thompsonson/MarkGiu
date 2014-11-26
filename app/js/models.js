@@ -7,7 +7,7 @@ markgiu.AppGui = function(){
     var that = this;
 
     //this.model = new Collection({db: "new_db", remoteCouch:"http://shedpi:5984/notes"});
-    this.model = new Collection({db: "new_db", remoteCouch:"https://thompson.couchappy.com/notes"});
+    this.model = new Collection({db: "private_local3", remoteCouch:"https://thompson.couchappy.com/notes_private", password: "notes_private"});
     //populate local copy of DB
     this.model.getAll();
     this.toJson = ko.observable(this.model.toJson);
