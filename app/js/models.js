@@ -6,14 +6,21 @@ markgiu.AppGui = function(){
  
     var that = this;
 
+    var myDBCollection = ko.observableArray([
+        {db: "private_local3", remoteCouch:"https://thompson.couchappy.com/notes_private", encrypt: true, password: "notes_private", continousSync: true},
+        {db: "new_db", remoteCouch:"https://thompson.couchappy.com/notes", encrypt: false, password: "", continousSync: true},
+        {db: "2", remoteCouch:"https://thompson.couchappy.com/notes2", encrypt: false, password: "", continousSync: true}
+    ])
+ 
     //this.model = new Collection({db: "new_db", remoteCouch:"http://shedpi:5984/notes"});
-    this.model = new Collection({db: "private_local3", remoteCouch:"https://thompson.couchappy.com/notes_private", password: "notes_private"});
+    this.model = new Collection(myDBCollection()[2]);
+
     //populate local copy of DB
     this.model.getAll();
     this.toJson = ko.observable(this.model.toJson);
 
     // start syncing
-    this.model.syncDB();
+    //this.model.syncDB();
  
     this.showDevTools = function(){
         win.showDevTools() ;

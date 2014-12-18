@@ -112,8 +112,6 @@ Document.prototype.decrypt = function(){
        
         try {
             decryptedDoc = JSON.parse(decryptedDoc); 
-            //decryptedDoc._id = doc._id; // overwriting... unnessacary i think now the _id and _rev are being encrypted and stored...
-            //decryptedDoc._rev = doc._rev; 
         } catch (ex) {
             _log.error(ex);
             decryptedDoc = {};
@@ -143,9 +141,14 @@ Document.prototype.update = function(){
     that = this;
     this.pdb_updated_hostname(PunchDB.os.hostname());
     this.pdb_updated_timestamp( new Date().toISOString());
-    this.nonObservableObj = this.encrypt(); //ko.mapping.toJS(this);
+    if (this.db.encrypt) {
+        this.nonObservableObj = this.encrypt();
+    } else {
+        this.nonObservableObj = ko.mapping.toJS(this);
+    }
+   
     _log.debug(this.nonObservableObj);
- 
+
     this.db.put(this.nonObservableObj, this._id(), this._rev(), function callback(err, doc){
         if (!err) {
             _log.info('Successfully updated');
@@ -159,5 +162,4 @@ Document.prototype.update = function(){
         }
     });
 }
-  
  

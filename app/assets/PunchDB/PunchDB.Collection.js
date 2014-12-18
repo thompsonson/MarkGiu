@@ -9,6 +9,8 @@ function Collection(options){
     this.dbName = ko.observable(options.db || './db')
     this.remoteCouch = ko.observable(options.remoteCouch || null);
     this.password = options.password || "";
+    this.continousSync = options.continousSync || false;
+    this.encrypt = options.encrypt || false;  
  
     // Database connection
     this.db = new PouchDB(this.dbName());
@@ -27,8 +29,13 @@ function Collection(options){
     this.CurrentDocument = ko.observable(null);
  
     // Process Variables
-    this.syncState = ko.observable("starting...");
- 
+    if (this.continousSync) {
+        this.syncState = ko.observable("starting...");
+        this.syncDB();
+    } else {
+        this.syncState = ko.observable("local mode");
+    }
+
     // extras (maybe not part of PunchDB but rather the applicaiton [TODO])
     this.showDeleted = ko.observable(false);
  
