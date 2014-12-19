@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>NoName - a Node-Webkit Markdown editor based on MarkGiu!</title>
+        <meta name="description" content="NoNameNotes">
+        <meta name="author" content="Matthew Thompson">
+        <meta name="viewport" content="width=device-width">
+     
+        <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="assets/font-awesome-more/css/font-awesome.min.css">
+        <link rel="stylesheet" href="assets/bootstrap/css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+        <script src="assets/jquery/jquery.min.js"></script>
+    </head>
+    <body>
+        <div id="wrap"> 
+            <div class="navbar top-navbar">
+                <div class="navbar-inner">
+                    <ul class="nav pull-left">
+                        <li>
+                            <a href="index.html">back to Notes</a>
+                        </li>
+                        <li>
+                            <a href="#" data-bind='click: newDB'><i class="icon-file"></i>New Database</a>
+                        </li>
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li>
+                            <a href="#" data-bind="click: showDevTools">DevTools</a>
+                        </li>
+                        <li>
+                            <a href="#" data-bind="click: reloadPageHard">reload page</a>
+                        </li>
+                  </ul>
+                </div>
+            </div><!-- top-navbar -->
+            <div id="" class="xcontainer">
+
+                <h2>Databases</h2>
+                <div id='databaseList'>
+                    <table class='databaseEditor'>
+                        <tr>
+                            <th>local DB name</th>
+                            <th>remote DB address</th>
+                            <th>encrypt</th>
+                            <th>password</th>
+                            <th>Continous Sync</th>
+                        </tr>
+                        <tbody data-bind="foreach: databases">
+                            <tr>
+                                <td><input data-bind='value: db' /></td>
+                                <td><input data-bind='value: remoteCouch' /></td>
+                                <td><input type="checkbox" data-bind="checked: encrypt" /></td>
+                                <td><input data-bind='value: password' /></td>
+                                <td><input type="checkbox" data-bind='checked: continousSync' /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div><!-- xcontainer -->
+            <div class="bottom-navbar">
+                <div class="navbar-inner">
+                    <div class="container">
+                        <p class="navbar-text muted" style="text-align:center">                   
+                            Edit the databases here
+                        </p>
+                    </div>
+                 </div>
+            </div><!-- bottom-navbar -->
+        </div><!-- wrap -->
+ 
+        <!-- le javascript -->
+        <script src="assets/date.format/date.format.js"></script>
+        <script src="assets/_log/_log.js"></script>
+
+        <script src="assets/knockout/knockout-3.2.0.js"></script>
+        <script src="assets/knockout/knockout.mapping.js"></script>
+        <script src="assets/knockout/knockout.search.js"></script>
+        <script src="assets/knockout/knockout-ace.js"></script>
+        <script src="assets/knockout/knockout-dirtyflag.js"></script>
+        <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+        <script src="assets/ace/cloud/ace.js"></script>
+        <script src="assets/showdown/showdown.js"></script>
+        <script src="assets/showdown/extensions/github.js"></script>
+        <script src="assets/showdown/extensions/wikilink.js"></script>
+        <script src="assets/showdown/extensions/table.js"></script>
+        <script src="assets/bootbox/bootbox.min.js"></script>
+        <script src="assets/PouchDB/pouchdb-3.0.6.min.js"></script>
+        <script src="assets/PunchDB/PunchDB.Document.js"></script>
+        <script src="assets/PunchDB/PunchDB.Collection.js"></script>
+        <script src="assets/Crypto-JS/aes.js"></script>
+      
+        <script src="js/models.js"></script>
+        <script src="js/db.js"></script>
+    </body>
+</html>
