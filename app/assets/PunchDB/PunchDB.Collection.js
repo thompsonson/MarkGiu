@@ -6,11 +6,11 @@ var PunchDB = PunchDB || {};
 function Collection(options){
     var that = this;
  
-    this.dbName = ko.observable(options.db || './db')
-    this.remoteCouch = ko.observable(options.remoteCouch || null);
-    this.password = options.password || "";
-    this.continousSync = options.continousSync || false;
-    this.encrypt = options.encrypt || false;  
+    this.dbName = ko.observable(options.db() || './db');
+    this.remoteCouch = ko.observable(options.remoteCouch() || null);
+    this.password = ko.observable(options.password() || "");
+    this.continousSync = ko.observable(options.continousSync() || false);
+    this.encrypt = ko.observable(options.encrypt() || false);  
  
     // Database connection
     this.db = new PouchDB(this.dbName());
@@ -46,14 +46,9 @@ function Collection(options){
 };
  
 // Collection methods
-Collection.prototype.new = function() {
+Collection.prototype.new = function(data) {
     var doc = {
-        data: {
-            _id: new Date().toISOString(),
-            _rev: "",
-            Label: new Date().format("Ymd His"),
-            Content: ""
-        },
+        data: data,
         db: this.db,
         Collection: this
     }
@@ -139,7 +134,7 @@ Collection.prototype.MonitorChanges = function() {
 
     changes.on('update', function(obj){
         _log.info("Collection.prototype.MonitorChanges - Update");
-        //console.log(obj);
+        console.log(obj);
         if (that instanceof Document){
             that.Collection.onDocumentUpdate(obj);
         } else if (that instanceof Collection){

@@ -99,11 +99,11 @@ Document.prototype.encrypt = function(){
  
 Document.prototype.decrypt = function(){
     _log.info("Document.prototype.decrypt - called");
-    if (this.options.data.encrypted && this.options.Collection.password){
+    if (this.options.data.encrypted && this.options.Collection.password()){
  
         var decryptedDoc
         try{
-            decrypted = CryptoJS.AES.decrypt(this.options.data.encrypted, this.options.Collection.password, { format: this.JsonFormatter });
+            decrypted = CryptoJS.AES.decrypt(this.options.data.encrypted, this.options.Collection.password(), { format: this.JsonFormatter });
             decryptedDoc = decrypted.toString(CryptoJS.enc.Utf8)
         } catch (ex) {
             _log.error(ex);
@@ -141,7 +141,7 @@ Document.prototype.update = function(){
     that = this;
     this.pdb_updated_hostname(PunchDB.os.hostname());
     this.pdb_updated_timestamp( new Date().toISOString());
-    if (this.db.encrypt) {
+    if (this.db.encrypt()) {
         this.nonObservableObj = this.encrypt();
     } else {
         this.nonObservableObj = ko.mapping.toJS(this);
